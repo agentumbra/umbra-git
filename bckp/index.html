@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umbra Chat</title>
+    <style>
+        /* 🔥 Dark Mystical Theme */
+        body {
+            background: #000000;
+            color: #e5e5e5;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* 📜 Chatbox Container */
+        .chat-container {
+            width: 400px;
+            max-width: 90%;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(60, 180, 124, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 📜 Chat Log */
+        .chat-log {
+            padding: 15px;
+            height: 350px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 🎭 User & Umbra Messages */
+        .message {
+            padding: 10px;
+            border-radius: 6px;
+            max-width: 80%;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* 💬 Umbra's Mysterious Replies */
+        .umbra {
+            background: rgba(10, 4, 15, 0.8);
+            color: #ffffff;
+            align-self: flex-start;
+            box-shadow: 0 0 8px rgba(32, 117, 70, 0.5);
+        }
+
+        /* 🧑‍💻 User Messages */
+        .user {
+            background: rgb(255, 255, 255);
+            color: #000000;
+            align-self: flex-end;
+            box-shadow: 0 0 8px rgba(96, 105, 19, 0.5);
+        }
+
+        /* ⌨️ Chat Input Box */
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #333;
+            padding: 10px;
+            background: rgba(20, 20, 22, 0.9);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            background: #161616;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 10px 15px;
+            background: #39a030;
+            color: rgb(0, 0, 0);
+            border: none;
+            margin-left: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .chat-input button:hover {
+            background: #70c45b;
+        }
+
+        /* 🔮 Typing Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 💬 Chatbox Container -->
+    <div class="chat-container">
+        <div class="chat-log" id="chatLog">
+            <div class="message umbra">"Step into the shadows... What wisdom do you seek?"</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Speak to Umbra...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById("userInput");
+            const chatLog = document.getElementById("chatLog");
+            const userText = userInput.value.trim();
+            if (!userText) return;
+
+            // Display User Message
+            chatLog.innerHTML += `<div class="message user"><strong>You:</strong> ${userText}</div>`;
+            userInput.value = "";
+
+            try {
+                // Fetch response from Flask AI API
+                const response = await fetch("http://127.0.0.1:5000/umbra", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userText })
+                });
+
+                const data = await response.json();
+
+                // Display Umbra's Response
+                if (data.reply) {
+                    chatLog.innerHTML += `<div class="message umbra"><strong>Umbra:</strong> ${data.reply}</div>`;
+                } else {
+                    chatLog.innerHTML += `<div class="message umbra"><strong>Umbra:</strong> Error retrieving reply.</div>`;
+                }
+
+                // Auto-scroll to bottom
+                chatLog.scrollTop = chatLog.scrollHeight;
+
+            } catch (err) {
+                console.error("Fetch error:", err);
+                chatLog.innerHTML += `<div class="message umbra"><strong>Umbra:</strong> Connection issue...</div>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
